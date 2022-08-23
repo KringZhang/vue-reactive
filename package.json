@@ -1,0 +1,24 @@
+{
+  "name": "vue-reactive",
+  "version": "1.0.0",
+  "description": "vue响应式原理",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack-dev-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KringZhang/vue-reactive.git"
+  },
+  "author": "Kring",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KringZhang/vue-reactive/issues"
+  },
+  "homepage": "https://github.com/KringZhang/vue-reactive#readme",
+  "dependencies": {
+    "webpack": "^5.74.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.3"
+  }
+}
