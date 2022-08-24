@@ -1,7 +1,19 @@
 <html>
   <head></head>
   <body>
-    <div id="box"></div>
+    <div id="app">
+      <p v-if="show" v-bind:class="className">段落</p>
+      <span v-bind:class="className">姓名：{{name}} {{age}} {{name}} {{age}}</span>
+      <div v-show="show">年龄：{{age}}</div>
+      <div v-on:click="minus">方法：{{fn()}}</div>
+      <div>{{a.b.c.d}}</div>
+      <ul>
+        <li>A</li>
+        <li>B</li>
+        <li>C</li>
+      </ul>
+      <button id="btn" @click="minus">年龄+1</button>
+    </div>
     <script src="/virtual/bundle.js"></script>
   </body>
 </html>

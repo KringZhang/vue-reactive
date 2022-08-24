@@ -13,12 +13,12 @@ export const defineReactive = function (obj, key, val) {
   const dep = new Dep()
   Object.defineProperty(obj, key, {
     get () {
-      console.log(`正在访问${key}属性`)
+      // console.log(`正在访问${key}属性`)
       Dep.target && dep.addSub(Dep.target)
       return val
     },
     set (newVal) {
-      console.log(`正在改变${key}属性`)
+      // console.log(`正在改变${key}属性`)
       if (newVal !== val) {
         val = newVal
         observe(newVal)

@@ -1,24 +1,18 @@
 import { observe } from './defineReactive.js'
-import { Watcher } from './Watcher.js'
+import { node2Fragment, compile } from './node2Fragment.js'
 const obj = {
   name: 'zks',
+  show: false,
   age: 18,
   a: {
     b: {
       c: {
-        d: {}
+        d: '真是层级很深的数据'
       }
     }
   }
 }
 window.obj = obj
-
-const initWatcher = (data, key, el) => {
-  new Watcher(data, key, newVal => {
-    console.log(data, key, '更新操作,更新后的值是：', newVal)
-    el.innerText = newVal
-  })
-}
 
 // 代理data到this上
 const proxyData = (data, vm) => {
@@ -35,19 +29,34 @@ const proxyData = (data, vm) => {
 }
 
 class myVue {
-  constructor ({ el, data, mounted }) {
+  constructor ({ el, data, methods, mounted }) {
+    const dom = document.querySelector(el)
     proxyData(data, this)
+    proxyData(methods, this)
     observe(data)
-    initWatcher(data, 'name', el)
+    const fragment = node2Fragment(dom)
+    compile(fragment, this)
+    dom.appendChild(fragment)
+    document.querySelector('#btn').addEventListener('click', () => {
+      data.age++
+    })
     mounted()
-    console.log(this)
     return this
   }
 }
 
 const vm = new myVue({
-  el: document.querySelector('#box'),
+  el: '#app',
   data: obj,
+  methods: {
+    fn () {
+      console.log(1111)
+      return this.age
+    },
+    minus () {
+      this.age--
+    }
+  },
   mounted() {
     console.log('mounted----')
     setTimeout(() => {
