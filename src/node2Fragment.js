@@ -17,23 +17,30 @@ export const compile = (fragment, vm) => {
         console.log('标签节点', x.name, x.value);
         if (x.name.startsWith('v-')) {
           const attrName = x.name.substring(2)
-          if (attrName === 'if') {
+          if (['if', 'show'].includes(attrName)) {
             // 更新属性(包括初始化和响应式更新)
             const updateAttr = newVal => {
               let style = node.getAttribute('style')
               if (newVal) { // v-if为true时，移除style里面的display属性
                 const arr = style.split(';')
-                const reg = arr[arr.length - 1].includes('display') ? /display:(.)*$/ : /display:(.)*;$/
+                let reg
+                if (attrName === 'if') {
+                  reg = arr[arr.length - 1].includes('display') ? /display:(.)*$/ : /display:(.)*;$/
+                } else if (attrName === 'show') {
+                  reg = arr[arr.length - 1].includes('visibility') ? /visibility:(.)*$/ : /visibility:(.)*;$/
+                }
                 style = style.replace(reg, '')
                 style ? node.setAttribute('style', style) : node.removeAttribute('style')
               } else { // v-if的值为false时，style里面的display属性赋值为none
-                style = `${style || ''}display: none;`
+                style = attrName === 'if' ? `${style || ''}display: none;` : `${style || ''}visibility: hidden;`
                 node.setAttribute('style', style)
               }
             }
             updateAttr(parsePath(vm, x.value))
             node.removeAttribute(x.name)
             new Watcher(vm, x.value, newVal => updateAttr(newVal))
+          } else if (attrName.startsWith('bind:')) {
+
           }
         }
       })
