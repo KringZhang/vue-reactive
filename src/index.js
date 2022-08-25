@@ -2,8 +2,10 @@ import { observe } from './defineReactive.js'
 import { node2Fragment, compile } from './node2Fragment.js'
 const obj = {
   name: 'zks',
-  show: false,
+  show: true,
   age: 18,
+  className: 'red',
+  classNameBlue: 'blue',
   a: {
     b: {
       c: {
@@ -37,9 +39,6 @@ class myVue {
     const fragment = node2Fragment(dom)
     compile(fragment, this)
     dom.appendChild(fragment)
-    document.querySelector('#btn').addEventListener('click', () => {
-      data.age++
-    })
     mounted()
     return this
   }
@@ -50,11 +49,14 @@ const vm = new myVue({
   data: obj,
   methods: {
     fn () {
-      console.log(1111)
       return this.age
     },
-    minus () {
-      this.age--
+    minus (val) {
+      console.log('入参val----', val)
+      this.age -= val ? +val : 1
+    },
+    toggleTitle () {
+      this.show = !this.show
     }
   },
   mounted() {

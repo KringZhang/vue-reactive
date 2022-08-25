@@ -1,18 +1,31 @@
 <html>
-  <head></head>
+  <head>
+    <style>
+      .red {
+        color: red
+      }
+      .blue {
+        color: blue
+      }
+    </style>
+  </head>
   <body>
     <div id="app">
-      <p v-if="show" v-bind:class="className">段落</p>
-      <span v-bind:class="className">姓名：{{name}} {{age}} {{name}} {{age}}</span>
-      <div v-show="show">年龄：{{age}}</div>
-      <div v-on:click="minus">方法：{{fn()}}</div>
+      <button @click="toggleTitle">切换标题</button>
+      <p v-if="show" v-bind:class="className">标题1--红色</p>
+      <p v-else :class="classNameBlue">标题2--蓝色</p>
+      <span :class="classNameBlue">姓名：{{name}} {{age}} {{name}} {{age}}</span>
+      <div v-show="show" :class="className">年龄：{{age}}</div>
+      <button v-on:click="minus">方法1：{{fn()}}</button>
+      <button @click="minus()">方法2：{{fn()}}</button>
+      <button v-on:click="minus(2, 5)">方法3：{{fn()}}</button>
       <div>{{a.b.c.d}}</div>
       <ul>
         <li>A</li>
         <li>B</li>
         <li>C</li>
       </ul>
-      <button id="btn" @click="minus">年龄+1</button>
+      <button id="btn" @click="minus(-1)">年龄+1</button>
     </div>
     <script src="/virtual/bundle.js"></script>
   </body>

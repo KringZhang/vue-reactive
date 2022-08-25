@@ -1,3 +1,4 @@
+import { compileNode } from "./compileNode"
 import { Watcher } from "./Watcher"
 
 export const node2Fragment = (dom) => {
@@ -11,39 +12,11 @@ export const node2Fragment = (dom) => {
 
 export const compile = (fragment, vm) => {
   const list = fragment?.childNodes?.length ? [...fragment.childNodes] : []
+  // v-if、v-else-if时把条件入栈，v-else时出栈
+  let stack = []
   list.forEach(node => {
     if (node.nodeType === 1) { // 标签节点
-      [...node.attributes].forEach(x => {
-        console.log('标签节点', x.name, x.value);
-        if (x.name.startsWith('v-')) {
-          const attrName = x.name.substring(2)
-          if (['if', 'show'].includes(attrName)) {
-            // 更新属性(包括初始化和响应式更新)
-            const updateAttr = newVal => {
-              let style = node.getAttribute('style')
-              if (newVal) { // v-if为true时，移除style里面的display属性
-                const arr = style.split(';')
-                let reg
-                if (attrName === 'if') {
-                  reg = arr[arr.length - 1].includes('display') ? /display:(.)*$/ : /display:(.)*;$/
-                } else if (attrName === 'show') {
-                  reg = arr[arr.length - 1].includes('visibility') ? /visibility:(.)*$/ : /visibility:(.)*;$/
-                }
-                style = style.replace(reg, '')
-                style ? node.setAttribute('style', style) : node.removeAttribute('style')
-              } else { // v-if的值为false时，style里面的display属性赋值为none
-                style = attrName === 'if' ? `${style || ''}display: none;` : `${style || ''}visibility: hidden;`
-                node.setAttribute('style', style)
-              }
-            }
-            updateAttr(parsePath(vm, x.value))
-            node.removeAttribute(x.name)
-            new Watcher(vm, x.value, newVal => updateAttr(newVal))
-          } else if (attrName.startsWith('bind:')) {
-
-          }
-        }
-      })
+      compileNode(node, vm, stack)
       compile(node, vm)
     } else if (node.nodeType === 3) { // 文本节点
       const matchReg = /\{\{([^\}]+)\}\}/g
@@ -75,6 +48,13 @@ export function parsePath (vm, key) {
   const keyArr = key.split('.')
   const res = keyArr.reduce((prev, cur) => {
     // 考虑到{{}}里面是方法的场景(以()结束)
+    // if (cur.endsWith('()')) {
+    //   return (prev[cur.substring(0, cur.length - 2)])()
+    // } else if (cur in prev) {
+    //   return prev[cur]
+    // } else {
+    //   return cur
+    // }
     return cur.endsWith('()') ? (prev[cur.substring(0, cur.length - 2)])() : prev[cur]
   }, vm)
   return res
