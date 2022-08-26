@@ -21,16 +21,19 @@
       <button v-on:click="minus(2, 5)">方法3：{{fn()}}</button>
       <div>{{a.b.c.d}}</div>
       <ul>
-        <!-- <li><div>{{age}} {{item}}</div></li> -->
         <li v-for="item in arr" :key="item">
           年龄：{{age}}
           <div>{{item}} {{age}}</div>
         </li>
-        <!-- <li><div>{{age}} {{item}}</div></li> -->
-        <!-- <li>A</li>
-        <li>B</li>
-        <li>C</li> -->
       </ul>
+      <ol>
+        <li v-for="item in m.n.o">
+          {{item.sex}}--{{item.hobby}}
+          <div v-for="x in item.children">
+            {{x}}
+          </div>
+        </li>
+      </ol>
       <button id="btn" @click="minus(-1)">年龄+1</button>
     </div>
     <script src="/virtual/bundle.js"></script>

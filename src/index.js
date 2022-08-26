@@ -7,6 +7,15 @@ const obj = {
   className: 'red',
   classNameBlue: 'blue',
   arr: ['A', 'B', 'C'],
+  m: {
+    n: {
+      o: [
+        { sex: '男', hobby: '下棋', children: [ '北京' ]},
+        { sex: '女', hobby: '游泳', children: [ '上海', '深圳' ] },
+        { sex: '男', hobby: '打球', children: [ '武汉', '广州' ] },
+      ]
+    }
+  },
   a: {
     b: {
       c: {
