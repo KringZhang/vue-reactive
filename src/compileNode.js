@@ -1,8 +1,11 @@
-import { parsePath } from './node2Fragment'
+import { compile, parsePath } from './node2Fragment'
 import { Watcher } from "./Watcher"
 
 // 编译节点类型(主要是指令)
 export const compileNode = (node, vm, stack) => {
+  let vFor
+  // 存当前节点未编译之前的子节点
+  let unCompiledChildNodes = '';
   [...node.attributes].forEach(x => {
     if (x.name.startsWith('@')) {
       const eventKey = x.name.substring(1)
@@ -12,13 +15,13 @@ export const compileNode = (node, vm, stack) => {
       handleBind(vm, node, x, key)
     } else if (x.name.startsWith('v-')) {
       const attrName = x.name.substring(2)
-      if (['if', 'show'].includes(attrName)) {
+      if (['if', 'show'].includes(attrName)) { // v-if  v-show
         updateAttr(node, x, parsePath(vm, x.value), stack)
         new Watcher(vm, x.value, newVal => updateAttr(node, x, newVal))
       } else if (attrName.startsWith('else-if')) {
         // TODO
         stack.push(x.value)
-      } else if (attrName.startsWith('else')) {
+      } else if (attrName.startsWith('else')) { // v-else
         if (!stack.length) return console.error('v-else找不到匹配的v-if')
         // 拿到stack数组里面的每一项的布尔值，并且用||计算结果，然后取反
         const calcFlag = stack.reduce((prev, cur) => prev || parsePath(vm, cur), false)
@@ -29,6 +32,13 @@ export const compileNode = (node, vm, stack) => {
         }
         new Watcher(vm, stack[0], newVal => updateAttr(node, x, !newVal))
         stack.splice(0, stack.length)
+      } else if (attrName.startsWith('for')) { // v-for
+        let [item, listName] = x.value.split(' in ')
+        const list = parsePath(vm, listName) || []
+        vm[item] = list[0]
+        vFor = x
+        unCompiledChildNodes = node.childNodes.length ? [...node.childNodes].map(i => i.cloneNode(true)) : []
+        console.log('unCompiledChildNodes===', unCompiledChildNodes)
       } else if (attrName.startsWith('bind:')) {
         const key = attrName.substring(5)
         handleBind(vm, node, x, key)
@@ -39,6 +49,34 @@ export const compileNode = (node, vm, stack) => {
     }
     node.removeAttribute(x.name)
   })
+  compile(node, vm)
+  vFor && cb(vm, node, vFor, stack, unCompiledChildNodes)
+}
+
+// 处理通过v-for循环出来的节点
+function cb (vm, node, vFor, stack, unCompiledChildNodes) {
+  let [item, listName] = vFor.value.split(' in ')
+  const list = parsePath(vm, listName) || []
+  const tagName = node.tagName.toLowerCase()
+  // v-for遍历出来的节点要插入的位置
+  const pos = node.nextSibling || null
+  list.forEach((y, yIdx) => {
+    if (yIdx) { // yIdx从1开始
+      vm[item] = y
+      const dom = document.createElement(tagName);
+      // 把当前节点的属性复制到每一个新创建的节点上面
+      [...node.attributes].forEach(z => {
+        z.name !== 'v-for' && dom.setAttribute(z.name, z.value)
+      });
+      unCompiledChildNodes.forEach(z => {
+        dom.appendChild(z.cloneNode(true))
+      })
+      node.parentNode.insertBefore(dom, pos)
+      compileNode(dom, vm, stack)
+    }
+  })
+  // v-for区域结束之后，释放掉局部变量
+  delete vm[item]
 }
 
 // 编译v-if v-else v-show(包括初始化和响应式更新)

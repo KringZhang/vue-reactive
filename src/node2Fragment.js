@@ -17,7 +17,6 @@ export const compile = (fragment, vm) => {
   list.forEach(node => {
     if (node.nodeType === 1) { // 标签节点
       compileNode(node, vm, stack)
-      compile(node, vm)
     } else if (node.nodeType === 3) { // 文本节点
       const matchReg = /\{\{([^\}]+)\}\}/g
       const replaceReg = /\{\{([^\}]+)\}\}/
@@ -25,6 +24,8 @@ export const compile = (fragment, vm) => {
       let str = textContent
       const arr = textContent.match(matchReg)
       if (arr?.length) { // arr ---> ['{{name}}', '{{age}}', '{{a.b.c.d}}']
+        console.log('arr---', arr)
+        console.log('vm---', vm)
         const tempArr = []
         arr.forEach((x, idx) => {
           const key = x.substring(2, x.length - 2)

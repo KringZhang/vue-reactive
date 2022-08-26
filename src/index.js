@@ -6,6 +6,7 @@ const obj = {
   age: 18,
   className: 'red',
   classNameBlue: 'blue',
+  arr: ['A', 'B', 'C'],
   a: {
     b: {
       c: {
