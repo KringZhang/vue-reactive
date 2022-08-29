@@ -32,6 +32,13 @@ export const compileNode = (node, vm, stack) => {
         }
         new Watcher(vm, stack[0], newVal => updateAttr(node, x, !newVal))
         stack.splice(0, stack.length)
+      } else if (attrName.startsWith('model')) { // v-model
+        // 初始化显示
+        node.value = parsePath(vm, x.value)
+        // 数据改变，更新视图（输入框的值）
+        new Watcher(vm, x.value, newVal => node.value = newVal)
+        // 输入框的输入改变事件，更新数据
+        node.addEventListener('input', e => vm[x.value] = e.target.value)
       } else if (attrName.startsWith('for')) { // v-for
         let [item, listName] = x.value.split(' in ')
         const list = parsePath(vm, listName) || []
